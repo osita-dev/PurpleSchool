@@ -1,44 +1,110 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-// Simple AuthContext for UI-only mode (no backend)
-const AuthContext = createContext(undefined);
+// create the context
+const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(false); // can set true if you want a loading UI
+// custom hook for easy access
+export const useAuth = () => useContext(AuthContext);
 
-  // Fake effect to simulate loading user/profile for UI
-  useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => {
-      setUser(null); // no user logged in for now
-      setProfile(null);
+export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user")) || null
+  );
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState(null); // {type:'success'|'error', message:''}
+
+  // utility for showing notifications
+  const showNotification = (type, message) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 4000);
+  };
+
+  // SIGNUP
+  const signupUser = async (formData) => {
+    try {
+      setLoading(true);
+      const res = await fetch("http://localhost:5000/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Signup failed");
+      showNotification("success", "Account created successfully!");
+      navigate("/login");
+    } catch (err) {
+      showNotification("error", err.message);
+    } finally {
       setLoading(false);
-    }, 500); // simulate short delay
-    return () => clearTimeout(timer);
-  }, []);
+    }
+  };
 
-  // Stubbed functions for now, do nothing but keep interface
-  const signUp = async (email, password, profileData) => ({ success: true });
-  const verifyOTP = async (email, otp) => ({ success: true });
-  const signIn = async (email, password) => ({ success: true });
-  const signOut = async () => {};
-  const refreshProfile = async () => {};
+  // LOGIN
+  const loginUser = async (formData) => {
+    try {
+      setLoading(true);
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Invalid credentials");
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
+      setToken(data.token);
+      showNotification("success", "Logged in successfully!");
+      navigate("/dashboard");
+    } catch (err) {
+      showNotification("error", err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // LOGOUT
+  const logoutUser = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    setToken(null);
+    navigate("/login");
+  };
 
   return (
     <AuthContext.Provider
-      value={{ user, profile, loading, signUp, verifyOTP, signIn, signOut, refreshProfile }}
+      value={{
+        user,
+        token,
+        loading,
+        notification,
+        signupUser,
+        loginUser,
+        logoutUser,
+      }}
     >
       {children}
+
+      {/* ✅ Tailwind notification box */}
+      {notification && (
+        <div
+          className={`fixed bottom-5 right-5 px-4 py-3 rounded-lg border shadow-md transition-all duration-300 ${
+            notification.type === "success"
+              ? "bg-green-100 text-green-700 border-green-300"
+              : "bg-red-100 text-red-700 border-red-300"
+          }`}
+        >
+          {notification.message}
+        </div>
+      )}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+};
+export { AuthContext };

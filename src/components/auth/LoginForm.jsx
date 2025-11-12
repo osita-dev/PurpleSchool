@@ -5,31 +5,59 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 export default function LoginForm() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [notification, setNotification] = useState(null);
+  const [formData, setFormData] = useState({ email: '', password: '' });
 
-  const handleSubmit = (e) => {
+  const showNotification = (type, message) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 4000);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
-    setTimeout(() => {
+    try {
+      const res = await fetch('https://purpleschoolbackend.onrender.com/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Invalid credentials');
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      showNotification('success', 'Logged in successfully!');
+      setTimeout(() => navigate('/dashboard'), 1000);
+    } catch (err) {
+      showNotification('error', err.message);
+    } finally {
       setLoading(false);
-      alert('Logged in successfully! (UI only)');
-    }, 500);
+    }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Welcome Back</h2>
+      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 relative">
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-            {error}
+        {notification && (
+          <div
+            className={`mb-4 p-3 rounded-lg text-center text-sm font-medium ${
+              notification.type === 'success'
+                ? 'bg-green-100 text-green-800 border border-green-300'
+                : 'bg-red-100 text-red-800 border border-red-300'
+            }`}
+          >
+            {notification.message}
           </div>
         )}
+
+        <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+          Welcome Back
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -66,7 +94,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:bg-blue-400 transition-colors"
+            className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400"
           >
             {loading ? 'Logging In...' : 'Log In'}
           </button>

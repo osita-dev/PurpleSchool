@@ -38,7 +38,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
 
         {/* Redirect root to login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Navigate to="/login"/>} />
 
         {/* Catch-all 404 */}
         {/* <Route path="*" element={<PageNotFound />} /> */}

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import LoginForm from './components/auth/LoginForm';
 import SignUpForm from './components/auth/SignUpForm';
 import Dashboard from './components/Dashboard';
+import ProtectedRouteLocal from './utils/ProtectedRoutes';
 // import PageNotFound from './components/PageNotFound';
  // simple 404 component
 
@@ -35,7 +36,11 @@ function App() {
         <Route path="/signup" element={<SignUpForm />} />
 
         {/* Dashboard */}
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<ProtectedRouteLocal>
+          
+          <Dashboard />
+          </ProtectedRouteLocal>
+          } />
 
         {/* Redirect root to login */}
         <Route path="/" element={<Navigate to="/login"/>} />

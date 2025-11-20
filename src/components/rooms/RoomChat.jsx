@@ -75,6 +75,17 @@ export default function RoomChat({ roomId, onLeaveRoom }) {
     );
   }
 
+  useEffect(() => {
+    // Set flag to indicate RoomChat is active
+    localStorage.setItem('persistRoomChat', 'true');
+
+    // Optional: remove flag when unmounting
+    return () => {
+      localStorage.removeItem('persistRoomChat');
+    };
+  }, []);
+
+
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Room header */}
@@ -129,11 +140,10 @@ export default function RoomChat({ roomId, onLeaveRoom }) {
               className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[70%] rounded-lg p-3 ${
-                  isOwnMessage
+                className={`max-w-[70%] rounded-lg p-3 ${isOwnMessage
                     ? 'bg-green-600 text-white'
                     : 'bg-white border border-gray-200 shadow-sm'
-                }`}
+                  }`}
               >
                 {!isOwnMessage && message.user && (
                   <div className="font-semibold text-sm mb-1 text-green-600">
@@ -158,11 +168,10 @@ export default function RoomChat({ roomId, onLeaveRoom }) {
         <button
           type="button"
           onClick={handleVoiceNote}
-          className={`p-3 rounded-lg transition-colors ${
-            isRecording
+          className={`p-3 rounded-lg transition-colors ${isRecording
               ? 'bg-red-600 text-white'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
+            }`}
         >
           <FiMic size={20} />
         </button>

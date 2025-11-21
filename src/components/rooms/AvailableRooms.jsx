@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { FiUsers, FiClock, FiBookOpen } from 'react-icons/fi';
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = 'http://localhost:5000'; // change if different
+const SOCKET_URL = 'https://purpleschoolbackend.onrender.com'; // change if different
 
 export default function AvailableRooms({ onJoinRoom }) {
   const [rooms, setRooms] = useState([]);

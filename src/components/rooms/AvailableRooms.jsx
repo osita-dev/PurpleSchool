@@ -8,7 +8,7 @@ export default function AvailableRooms({ onJoinRoom }) {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/rooms'); // fetch from backend
+        const res = await fetch('https://purpleschoolbackend.onrender.com/api/rooms'); // fetch from backend
         if (!res.ok) throw new Error('Network response was not ok');
         const data = await res.json();
         setRooms(data);

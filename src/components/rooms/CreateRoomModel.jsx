@@ -6,7 +6,7 @@ export default function CreateRoomModal({ onClose, onRoomCreated }) {
   const [error, setError] = useState('');
 
   // Load username from localStorage (simple)
-  const createdBy = localStorage.getItem("sii_username") || "Anonymous";
+  const createdBy = localStorage.getItem("username") || "anonymous";
 
   const [formData, setFormData] = useState({
     room_name: '',
@@ -26,7 +26,7 @@ export default function CreateRoomModal({ onClose, onRoomCreated }) {
     }
 
     try {
-      const response = await fetch("https://purpleschoolbackend.onrender.com/api/rooms", {
+      const response = await fetch("http://localhost:5000/api/rooms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

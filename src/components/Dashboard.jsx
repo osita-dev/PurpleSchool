@@ -74,7 +74,8 @@ export default function Dashboard() {
 
       // optional: notify server to blacklist token
       if (token) {
-        await fetch('http://localhost:5000/api/logout', {
+        await fetch('
+https://purpleschoolbackend.onrender.com/api/logout', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -119,7 +120,8 @@ export default function Dashboard() {
         const token = localStorage.getItem('token'); // assume user already has it
         if (!token) return;
 
-        const res = await fetch('http://localhost:5000/api/user', {
+        const res = await fetch('
+https://purpleschoolbackend.onrender.com/api/user', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
